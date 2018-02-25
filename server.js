@@ -1,6 +1,6 @@
 const http = require('http');
 const port = 8081;
-const workspace = '/home/cholic/workspace/';
+const workspace = '~/workspace/';
 
 http.createServer(requestHandler).listen(port);
 
@@ -25,10 +25,10 @@ function requestHandler(request, response) {
             getPostData(request).then((data) => {
                 returnResponse(response, `webhook processing accepted.`);
                 // todo 处理webhook
-                try{
+                try {
                     const hookData = JSON.parse(data);
                     let result = webHookHandler(hookData);
-                    result.then((result)=> {
+                    result.then((result) => {
                         //
                         console.log('success: processer finished!')
                     });
@@ -52,7 +52,7 @@ function requestHandler(request, response) {
  */
 function getPostData(request) {
     return new Promise(
-         (resolve) => {
+        (resolve) => {
             // 接收 POST 数据。如果请求方法不是 POST，那么这个变量最终是空字符串
             let POST = '';
             request.on('data', function (chunk) {
@@ -75,7 +75,7 @@ function returnResponse(response, data) {
     // 内容类型: text/plain
     response.writeHead(200, { 'Content-Type': 'text/plain' });
 
-    // 发送响应数据 "Hello World"
+    // 发送响应数据
     response.end(data);
 
 }
@@ -86,14 +86,15 @@ function returnResponse(response, data) {
  * @returns {*}
  */
 function webHookHandler(data) {
-    const {action, commits, head_commit, repository, pusher, sender} = data;
+    const { action, commits, head_commit, repository, pusher, sender } = data;
     //
     if (repository) {
         const name = repository.name;
         // 切换到对应目录，更新代码
-         return cmdProcesser([
-            `cd ${workspace+name}`,
-            'git pull'
+        return cmdProcesser([
+            `cd ${workspace + name}`,
+            'git checkout master',
+            'git pull',
         ]);
     } else {
         return rejectedPromise('webhook data error!');
@@ -108,22 +109,23 @@ function webHookHandler(data) {
 async function cmdProcesser(cmd_strs) {
     let exec = require('child_process').exec;
     let result = null;
-    try{
+    try {
         if (Array.isArray(cmd_strs)) {
             let i = 0;
-            for (i;i<cmd_strs.length;i++){
+            for (i; i < cmd_strs.length; i++) {
                 result = await CMD(cmd_strs[i]).catch((err) => {
                     throw err;
                 });
-            };
+            }
+            ;
             return result;
-        } else if ( typeof cmd_strs === 'string') {
+        } else if (typeof cmd_strs === 'string') {
             return await cmd(cmd_strs).catch((err) => {
                 throw err;
             });
         }
         throw new Error('cmdProcesser input error!');
-    } catch(err) {
+    } catch (err) {
         console.log(err);
         return rejectedPromise(err);
     }
@@ -136,10 +138,11 @@ async function cmdProcesser(cmd_strs) {
      */
     function CMD(cmd_str) {
         return new Promise((resolve, reject) => {
-            exec(cmd_str, function(err, stdout, stderr) {
+            exec(cmd_str, function (err, stdout, stderr) {
                 if (err) {
                     reject(err);
                 } else {
+                    console.log(`${cmd_str}: ${stdout}`);
                     resolve(stdout);
                 }
             });
@@ -148,7 +151,7 @@ async function cmdProcesser(cmd_strs) {
 }
 
 function rejectedPromise(err) {
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
         reject(err);
     });
 }
