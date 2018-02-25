@@ -93,8 +93,7 @@ function webHookHandler(data) {
         // 切换到对应目录，更新代码
         return cmdProcesser([
             `cd ${workspace + name}`,
-            'git checkout master',
-            'git pull',
+            'git pull origin master',
         ]);
     } else {
         return rejectedPromise('webhook data error!');
@@ -111,16 +110,18 @@ async function cmdProcesser(cmd_strs) {
     let result = null;
     try {
         if (Array.isArray(cmd_strs)) {
-            let i = 0;
-            for (i; i < cmd_strs.length; i++) {
-                result = await CMD(cmd_strs[i]).catch((err) => {
-                    throw err;
-                });
-            }
-            ;
-            return result;
+            // let i = 0;
+            // for (i; i < cmd_strs.length; i++) {
+            //     result = await CMD(cmd_strs[i]).catch((err) => {
+            //         throw err;
+            //     });
+            // }
+
+            return await CMD(cmd_strs.join(' && ')).catch((err) => {
+                throw err;
+            });
         } else if (typeof cmd_strs === 'string') {
-            return await cmd(cmd_strs).catch((err) => {
+            return await CMD(cmd_strs).catch((err) => {
                 throw err;
             });
         }
