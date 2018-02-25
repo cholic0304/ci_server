@@ -1,8 +1,9 @@
-var http = require('http');
+const http = require('http');
 
 http.createServer(function (request, response) {
 
-    console.log(request);
+    const {url, headers,} = request;
+    console.log(url);
 
     // 发送 HTTP 头部
     // HTTP 状态值: 200 : OK
@@ -10,7 +11,9 @@ http.createServer(function (request, response) {
     response.writeHead(200, {'Content-Type': 'text/plain'});
 
     // 发送响应数据 "Hello World"
-    response.end('Hello World\n');
+    response.end(url);
+
+    // todo 处理webhook
 }).listen(8081);
 
 // 终端打印如下信息
