@@ -4,14 +4,14 @@ http.createServer(function (request, response) {
 
     console.log(request);
 
-    // ·¢ËÍ HTTP Í·²¿
-    // HTTP ×´Ì¬Öµ: 200 : OK
-    // ÄÚÈİÀàĞÍ: text/plain
+    // å‘é€ HTTP å¤´éƒ¨
+    // HTTP çŠ¶æ€å€¼: 200 : OK
+    // å†…å®¹ç±»å‹: text/plain
     response.writeHead(200, {'Content-Type': 'text/plain'});
 
-    // ·¢ËÍÏìÓ¦Êı¾İ "Hello World"
+    // å‘é€å“åº”æ•°æ® "Hello World"
     response.end('Hello World\n');
 }).listen(8081);
 
-// ÖÕ¶Ë´òÓ¡ÈçÏÂĞÅÏ¢
+// ç»ˆç«¯æ‰“å°å¦‚ä¸‹ä¿¡æ¯
 console.log('Server running at http://127.0.0.1:8081/');
