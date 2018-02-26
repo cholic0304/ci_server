@@ -1,4 +1,5 @@
 const http = require('http');
+const dingding = require('./util/dingding');
 const port = 8081;
 const workspace = '~/workspace/';
 
@@ -30,13 +31,16 @@ function requestHandler(request, response) {
                     let result = webHookHandler(hookData);
                     result.then((result) => {
                         //
-                        console.log('success: processer finished!')
+                        console.log('success: processer finished!');
+                        const { action, commits, head_commit, repository, pusher, sender } = hookData;
+                        const msg = `uesr: ${pusher.name}\nemail: ${pusher.email}\npushed a commit to ${repository.full_name}\nci result: ${result}`;
+                        dingding.text(msg);
                     });
                 } catch (err) {
                     //
                     console.log(err);
                 }
-            })
+            });
             break;
         }
         default: {
@@ -117,13 +121,15 @@ async function cmdProcesser(cmd_strs) {
             //     });
             // }
 
-            return await CMD(cmd_strs.join(' && ')).catch((err) => {
+            result = await CMD(cmd_strs.join(' && ')).catch((err) => {
                 throw err;
             });
+            return result;
         } else if (typeof cmd_strs === 'string') {
-            return await CMD(cmd_strs).catch((err) => {
+            result = await CMD(cmd_strs).catch((err) => {
                 throw err;
             });
+            return result;
         }
         throw new Error('cmdProcesser input error!');
     } catch (err) {
